@@ -26,7 +26,7 @@
     {
         cell = [[ZTableViewCell alloc] initWithStyle:style reuseIdentifier:cellID];
     }
-    cell.backgroundColor = [UIColor blackColor];
+//    cell.backgroundColor = [UIColor blackColor];
     return cell;
 }
 

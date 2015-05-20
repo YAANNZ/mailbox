@@ -41,6 +41,11 @@
 // Do any additional setup after loading the view.
     
     self.view.backgroundColor = [UIColor whiteColor];
+    UIButton *bgBtn = [UIButton buttonWithType:UIButtonTypeSystem];
+    bgBtn.backgroundColor = [UIColor colorWithRed:224/255.0 green:224/255.0 blue:224/255.0 alpha:1.0];
+    bgBtn.frame = self.view.frame;
+    [self.view addSubview:bgBtn];
+    [bgBtn addTarget:self action:@selector(bgBtnClick) forControlEvents:UIControlEventTouchUpInside];
     
     UITextField *accountTextField = [[UITextField alloc] init];
     accountTextField.borderStyle = UITextBorderStyleRoundedRect;
@@ -60,6 +65,7 @@
     passwordTextField.borderStyle = UITextBorderStyleRoundedRect;
     passwordTextField.placeholder = @"请输入密码";
     passwordTextField.font = [UIFont systemFontOfSize:13];
+    passwordTextField.clearButtonMode = UITextFieldViewModeWhileEditing;
     UIView *passwordView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 30, 30)];
     passwordView.backgroundColor = [UIColor redColor];
     passwordTextField.leftView = passwordView;
@@ -71,7 +77,7 @@
     // 下拉列表
     UITableView *menuTableView= [[UITableView alloc] initWithFrame:CGRectMake(0,130,self.view.frame.size.width,120)];
     menuTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
-    menuTableView.backgroundColor = [UIColor blackColor];
+//    menuTableView.backgroundColor = [UIColor blackColor];
     self.menuTableView = menuTableView;
     menuTableView.dataSource=self;
     menuTableView.delegate=self;
@@ -79,26 +85,19 @@
     [self.view addSubview:menuTableView];
 }
  
+- (void)bgBtnClick
+{
+    [[UIApplication sharedApplication].keyWindow endEditing:YES];
+    self.menuTableView.hidden = YES;
+}
 
 #pragma mark UITextFieldDelegate
-- (BOOL)textFieldShouldReturn:(UITextField*)textField
-{
-    self.menuTableView.hidden = YES;
-    [self.passwordTextField becomeFirstResponder];
-    return YES;
-}
 
-- (BOOL)textFieldShouldClear:(UITextField *)textField
+- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
 {
-    self.menuTableView.hidden = YES;
-    return YES;
-}
-
-- (BOOL)textField:(UITextField*)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString*)string
-{
-    ZLog(@"%@",textField.text);
-    ZLog(@"%@",NSStringFromRange(range));
-    ZLog(@"%@",string);
+//    ZLog(@"%@",textField.text);
+//    ZLog(@"%@",NSStringFromRange(range));
+//    ZLog(@"%@",string);
     
     if (!range.length)
     {
@@ -121,6 +120,7 @@
                 self.emailArray = tempArray;
                 [self.menuTableView reloadData];
                 self.menuTableView.hidden = NO;
+                self.menuTableView.contentOffset = CGPointZero;
             }
         }
         else
@@ -135,24 +135,8 @@
             else
             {
                 // 1.2.2、输入string不是@开始匹配
-                BOOL hide = YES;
                 NSString *matchStr = [textField.text stringByAppendingString:string];
-                NSMutableArray *tempArray = [NSMutableArray array];
-                for (NSString *fullEmail in self.emailArray)
-                {
-                    if ((matchStr.length <= fullEmail.length) && [matchStr isEqualToString:[fullEmail substringWithRange:NSMakeRange(0, matchStr.length)]])
-                    {
-                        [tempArray insertObject:fullEmail atIndex:0];
-                        hide = NO;
-                    }
-                    else
-                    {
-                        [tempArray addObject:fullEmail];
-                    }
-                }
-                self.emailArray = tempArray;
-                [self.menuTableView reloadData];
-                self.menuTableView.hidden = hide;
+                [self matchEmail:matchStr];
             }
         }
     }
@@ -180,24 +164,8 @@
             if ([textField.text hasSuffix:MARK])
             {
                 // 2.3.1、要删除的是@，开始匹配
-                BOOL hide = YES;
                 NSString *matchStr = [textField.text substringToIndex:(textField.text.length - 1)];
-                NSMutableArray *tempArray = [NSMutableArray array];
-                for (NSString *fullEmail in self.emailArray)
-                {
-                    if ((matchStr.length <= fullEmail.length) && [matchStr isEqualToString:[fullEmail substringWithRange:NSMakeRange(0, matchStr.length)]])
-                    {
-                        [tempArray insertObject:fullEmail atIndex:0];
-                        hide = NO;
-                    }
-                    else
-                    {
-                        [tempArray addObject:fullEmail];
-                    }
-                }
-                self.emailArray = tempArray;
-                [self.menuTableView reloadData];
-                self.menuTableView.hidden = hide;
+                [self matchEmail:matchStr];
             }
             else
             {
@@ -216,24 +184,8 @@
             else
             {
                 // 2.4.2、要删除的不是@，开始匹配
-                BOOL hide = YES;
                 NSString *matchStr = [textField.text substringToIndex:(textField.text.length - 1)];
-                NSMutableArray *tempArray = [NSMutableArray array];
-                for (NSString *fullEmail in self.emailArray)
-                {
-                    if ((matchStr.length <= fullEmail.length) && [matchStr isEqualToString:[fullEmail substringWithRange:NSMakeRange(0, matchStr.length)]])
-                    {
-                        [tempArray insertObject:fullEmail atIndex:0];
-                        hide = NO;
-                    }
-                    else
-                    {
-                        [tempArray addObject:fullEmail];
-                    }
-                }
-                self.emailArray = tempArray;
-                [self.menuTableView reloadData];
-                self.menuTableView.hidden = hide;
+                [self matchEmail:matchStr];
             }
         }
         else
@@ -246,9 +198,55 @@
     return YES;
 }
 
+- (BOOL)textFieldShouldReturn:(UITextField*)textField
+{
+    self.menuTableView.hidden = YES;
+    [self.passwordTextField becomeFirstResponder];
+    return YES;
+}
+
+- (BOOL)textFieldShouldClear:(UITextField *)textField
+{
+    self.menuTableView.hidden = YES;
+    return YES;
+}
+
+// 进入编辑状态检查时都需要匹配
+- (BOOL)textFieldShouldBeginEditing:(UITextField *)textField
+{
+    if ((textField.text.length != 0) && [textField.text containsString:MARK])
+    {
+        NSString *matchStr = textField.text;
+        [self matchEmail:matchStr];
+    }
+    return YES;
+}
+
+// 完成匹配的方法
+- (void)matchEmail:(NSString *)matchStr
+{
+    BOOL hide = YES;
+    NSMutableArray *tempArray = [NSMutableArray array];
+    for (NSString *fullEmail in self.emailArray)
+    {
+        if ((matchStr.length <= fullEmail.length) && [matchStr isEqualToString:[fullEmail substringWithRange:NSMakeRange(0, matchStr.length)]])
+        {
+            [tempArray insertObject:fullEmail atIndex:0];
+            hide = NO;
+        }
+        else
+        {
+            [tempArray addObject:fullEmail];
+        }
+    }
+    self.emailArray = tempArray;
+    [self.menuTableView reloadData];
+    self.menuTableView.hidden = hide;
+    self.menuTableView.contentOffset = CGPointZero;
+}
 
 #pragma mark dataSource method and delegate method
- 
+
 - (NSInteger)tableView:(UITableView*)table numberOfRowsInSection:(NSInteger)section
 {
     return self.emailArray.count;
@@ -274,7 +272,5 @@
     self.menuTableView.hidden = YES;
     [self.passwordTextField becomeFirstResponder];
 }
-
- 
 
 @end
