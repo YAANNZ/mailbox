@@ -88,10 +88,9 @@
     passwordTextField.frame = CGRectMake(0,135,self.view.frame.size.width,30);
     [self.view addSubview:passwordTextField];
     
-    // 下拉列表
+    // email后缀列表
     UITableView *menuTableView= [[UITableView alloc] initWithFrame:CGRectMake(0,130,self.view.frame.size.width,120)];
     menuTableView.separatorStyle = UITableViewCellSeparatorStyleNone;
-//    menuTableView.backgroundColor = [UIColor blackColor];
     self.menuTableView = menuTableView;
     menuTableView.dataSource=self;
     menuTableView.delegate=self;
