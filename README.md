@@ -7,7 +7,7 @@
 
 -
 ###效果图<br>
-![](https://github.com/YAANNZ/mailbox/blob/master/gif/mailbox.gif)
+![](https://github.com/YAANNZ/mailbox/blob/master/gif/mailbox.gif"演示")
 
 -
 ###有任何问题和建议还请Issues。
