@@ -1,0 +1,25 @@
+//
+//  PrefixHeader.pch
+//  mailbox
+//
+//  Created by zhuyanan on 15/5/7.
+//  Copyright (c) 2015年 live. All rights reserved.
+//
+
+#ifndef lifetime_PrefixHeader_pch
+#define lifetime_PrefixHeader_pch
+
+// Include any system framework and library headers here that should be included in all compilation units.
+// You will also need to set the Prefix Header build setting of one or more of your targets to reference this file.
+#import "UIView+Extension.h"
+
+#define ZColor(r, g, b) [UIColor colorWithRed:(r)/255.0 green:(g)/255.0 blue:(b)/255.0 alpha:1.0]
+#define ZRandomColor ZColor(arc4random_uniform(255), arc4random_uniform(255), arc4random_uniform(255))
+
+#ifdef DEBUG // 处于开发阶段
+#define ZLog(...) NSLog(__VA_ARGS__)
+#else // 处于发布阶段
+#define ZLog(...)
+#endif
+
+#endif
