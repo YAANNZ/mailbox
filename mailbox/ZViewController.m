@@ -14,25 +14,39 @@
 @property(nonatomic, weak) UITextField *accountTextField;
 @property(nonatomic, weak) UITextField *passwordTextField;
 @property(nonatomic, weak) UITableView *menuTableView;
-@property(nonatomic, strong) NSMutableArray *emailArray;//邮箱后缀
+@property(nonatomic, strong) NSMutableArray *emailSuffixArray; // 邮箱后缀
+@property(nonatomic, strong) NSMutableArray *matchEmailArray; // 匹配符合的邮箱
+@property(nonatomic, strong) NSMutableArray *fullEmailArray; // 用来匹配的完整邮箱
 
 @end
 
 @implementation ZViewController
 
-- (NSMutableArray *)emailArray
+- (NSMutableArray *)matchEmailArray
 {
-    if (_emailArray == nil)
+    if (_matchEmailArray == nil)
     {
-        _emailArray = [NSMutableArray arrayWithObjects:@"sohu.com", @"3g.sina.cn", @"sina.com", @"sina.cn", @"163.com", @"126.com", @"qq.com", @"hotmail.com", @"gmail.com", @"yahoo.com", @"tom.com", @"sogou.com", @"vip.sina.com", @"189.com", @"vip.qq.com", @"vip.163.com", nil];
+        _matchEmailArray = [NSMutableArray array];
     }
-    
-    return _emailArray;
+    return _matchEmailArray;
 }
 
-- (NSMutableArray *)baseEmailArray
+- (NSMutableArray *)fullEmailArray
 {
-    return [NSMutableArray arrayWithObjects:@"sohu.com", @"3g.sina.cn", @"sina.com", @"sina.cn", @"163.com", @"126.com", @"qq.com", @"hotmail.com", @"gmail.com", @"yahoo.com", @"tom.com", @"sogou.com", @"vip.sina.com", @"189.com", @"vip.qq.com", @"vip.163.com", nil];
+    if (_fullEmailArray == nil)
+    {
+        _fullEmailArray = [NSMutableArray array];
+    }
+    return _fullEmailArray;
+}
+
+- (NSMutableArray *)emailSuffixArray
+{
+    if (_emailSuffixArray == nil)
+    {
+        _emailSuffixArray = [NSMutableArray arrayWithObjects:@"sohu.com", @"3g.sina.cn", @"sina.com", @"sina.cn", @"163.com", @"126.com", @"qq.com", @"hotmail.com", @"gmail.com", @"yahoo.com", @"tom.com", @"sogou.com", @"vip.sina.com", @"189.com", @"vip.qq.com", @"vip.163.com", nil];
+    }
+    return _emailSuffixArray;
 }
 
 - (void)viewDidLoad
@@ -112,12 +126,13 @@
                 // 1.1.1、输入string是@
                 NSString *fullEmail;
                 NSMutableArray *tempArray = [NSMutableArray array];
-                for (NSString *email in [self baseEmailArray])
+                for (NSString *email in [self emailSuffixArray])
                 {
                     fullEmail = [textField.text stringByAppendingString:[NSString stringWithFormat:@"%@%@",string,email]];
                     [tempArray addObject:fullEmail];
                 }
-                self.emailArray = tempArray;
+                self.fullEmailArray = tempArray;
+                self.matchEmailArray = tempArray;
                 [self.menuTableView reloadData];
                 self.menuTableView.hidden = NO;
                 self.menuTableView.contentOffset = CGPointZero;
@@ -227,7 +242,7 @@
 {
     BOOL hide = YES;
     NSMutableArray *tempArray = [NSMutableArray array];
-    for (NSString *fullEmail in self.emailArray)
+    for (NSString *fullEmail in self.fullEmailArray)
     {
         if ((matchStr.length <= fullEmail.length) && [matchStr isEqualToString:[fullEmail substringWithRange:NSMakeRange(0, matchStr.length)]])
         {
@@ -236,10 +251,10 @@
         }
         else
         {
-            [tempArray addObject:fullEmail];
+//            [tempArray addObject:fullEmail];
         }
     }
-    self.emailArray = tempArray;
+    self.matchEmailArray = tempArray;
     [self.menuTableView reloadData];
     self.menuTableView.hidden = hide;
     self.menuTableView.contentOffset = CGPointZero;
@@ -249,13 +264,13 @@
 
 - (NSInteger)tableView:(UITableView*)table numberOfRowsInSection:(NSInteger)section
 {
-    return self.emailArray.count;
+    return self.matchEmailArray.count;
 }
 
 - (UITableViewCell*)tableView:(UITableView*)tableView cellForRowAtIndexPath:(NSIndexPath*)indexPath
 {
     ZTableViewCell *cell = [ZTableViewCell cellWithTableView:tableView style:UITableViewCellStyleDefault];
-    [cell setEmail:self.emailArray[indexPath.row]];
+    [cell setEmail:self.matchEmailArray[indexPath.row]];
     return cell;
 }
 
@@ -268,7 +283,7 @@
 - (void)tableView:(UITableView*)tableView didSelectRowAtIndexPath:(NSIndexPath*)indexPath
 {
     // 将完整email填入输入框
-    self.accountTextField.text = self.emailArray[indexPath.row];
+    self.accountTextField.text = self.matchEmailArray[indexPath.row];
     self.menuTableView.hidden = YES;
     [self.passwordTextField becomeFirstResponder];
 }
