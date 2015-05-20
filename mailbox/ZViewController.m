@@ -226,7 +226,7 @@
     return YES;
 }
 
-// 进入编辑状态检查时都需要匹配
+// 进入编辑状态检查是否需要匹配
 - (BOOL)textFieldShouldBeginEditing:(UITextField *)textField
 {
     if ((textField.text.length != 0) && [textField.text containsString:MARK])
