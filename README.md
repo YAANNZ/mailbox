@@ -39,7 +39,7 @@ Dog *dog = [Dog objectWithKeyValues:dict];
 NSLog(@"nickName=%@, scalePrice=%f runSpeed=%f", dog.nickName, dog.salePrice, dog.runSpeed);
 ```
 
-### <a id="NSString_NSDate_nil_@"""></a> NSString -> NSDate nil -> @""
+### <a id="NSString_NSDate_nil_@"""></a> NSString -> NSDate  nil -> @""
 ```objc
 // Book
 #import "MJExtension.h"
