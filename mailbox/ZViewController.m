@@ -55,6 +55,11 @@
 // Do any additional setup after loading the view.
     
     // 添加布局控件
+    [self addSubviews];
+}
+
+- (void)addSubviews
+{
     self.view.backgroundColor = [UIColor whiteColor];
     UIButton *bgBtn = [UIButton buttonWithType:UIButtonTypeSystem];
     bgBtn.backgroundColor = [UIColor colorWithRed:224/255.0 green:224/255.0 blue:224/255.0 alpha:1.0];
@@ -98,7 +103,7 @@
     menuTableView.hidden = YES;
     [self.view addSubview:menuTableView];
 }
- 
+
 - (void)bgBtnClick
 {
     [[UIApplication sharedApplication].keyWindow endEditing:YES];
