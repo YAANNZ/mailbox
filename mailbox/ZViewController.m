@@ -54,6 +54,7 @@
     [super viewDidLoad];
 // Do any additional setup after loading the view.
     
+    // 添加布局控件
     self.view.backgroundColor = [UIColor whiteColor];
     UIButton *bgBtn = [UIButton buttonWithType:UIButtonTypeSystem];
     bgBtn.backgroundColor = [UIColor colorWithRed:224/255.0 green:224/255.0 blue:224/255.0 alpha:1.0];
